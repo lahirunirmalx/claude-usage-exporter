@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+
+# Local secrets / artifacts (never live here, but belt-and-braces)
+usage-api-token
+usage-api.crt
+usage-api.key
+*.pem
+.env
+.env.*
