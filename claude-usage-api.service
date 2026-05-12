@@ -1,0 +1,31 @@
+[Unit]
+Description=Claude Code usage API (LAN, token-auth)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# LAN bind by default. Override CLAUDE_USAGE_HOST=127.0.0.1 to make loopback-only.
+Environment=CLAUDE_USAGE_HOST=0.0.0.0
+Environment=CLAUDE_USAGE_PORT=7878
+Environment=CLAUDE_USAGE_TOKEN_FILE=%h/.claude/usage-api-token
+# Defaults to loopback + RFC1918 + link-local + ULA. Tighten if needed, e.g.:
+#   Environment=CLAUDE_USAGE_ALLOW_CIDRS=127.0.0.0/8,192.168.1.0/24
+Environment=CLAUDE_USAGE_RATE_LIMIT=120
+
+ExecStart=/usr/bin/python3 %h/tools/claude-usage/server.py
+Restart=on-failure
+RestartSec=5
+
+# Hardening (user unit — older systemd 245 can't drop kernel capabilities,
+# so we keep only the directives that don't require CAP_SYS_ADMIN to enforce).
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+
+[Install]
+WantedBy=default.target
